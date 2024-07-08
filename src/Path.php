@@ -4,7 +4,7 @@ namespace Codebites\Cli7zip;
 
 /**
  * Helper class for working with paths.
- * @author Marco Kretz
+ * @author Marco Kretz <marco@codebites.de>
  */
 final class Path
 {
