@@ -15,7 +15,7 @@ Because we use the full version we have support for all archive formats, not onl
 
 ## Install
 
--   `composer require codebites/cli7zip`
+-   `composer require codebites/cli-7zip`
 
 ## Usage
 
@@ -24,7 +24,11 @@ Because we use the full version we have support for all archive formats, not onl
 
 use Codebites\Cli7zip\Cli7zip;
 
+// Init
 $cli7zip = new Cli7zip();
+
+// Init with custom paths
+$cli7zip = new Cli7zip('7zz', ['/path/to/my/binaries_folder']);
 
 // Extract archive without folder creation
 $success = $cli7zip->extractArchive('/my/archive.7z', '/my/existing/target/folder');
