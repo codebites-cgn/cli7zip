@@ -2,9 +2,9 @@
 
 ## Description
 
-This is a simple wrapper around the CLI binary of [7-zip](https://www.7-zip.org/). I tried to abstract the most commonly used commands like **verify**, **extract**, **create** and **add**. It will try to find the `7zz` binary automatically on your system. I chose to use `7zz` because it's statically linked and standalone thus perfect for shipping without any dependencies. If it can't find `7zz` on your system it will default to the bundled binary from the `./bin` folder. I only bundle the `Linux x86_64` for now. You also have the possibility to point to additional paths in which the library should look for the binary via the constructor of the `Cli7zip` class.
+This is a simple wrapper around the CLI binary of [7-zip](https://www.7-zip.org/). I tried to abstract the most commonly used commands like **verify**, **extract**, **create** and **add**. It will try to find the `7zz` binary automatically on your system. I chose to use `7zz` because it's statically linked and standalone thus perfect for shipping without any dependencies. You are also free to use other compatible binaries like `7zr` or `7za` by passing it to the constructor. If it can't find `7zz` on your system, it will default to the bundled binary from the `./bin` folder. I only bundle the `Linux x86_64` for now. You also have the possibility to point to additional paths in which the library should look for the binary via the constructor of the `Cli7zip` class.
 
-Because we use the full version we have support for all archive formats, not only `.7z`. Taken from the website of 7-zip it shuold support the following formats:
+Because we use the full version we have support for all archive formats, not only `.7z`. Taken from the website of 7-zip it should support the following formats:
 
 -   Packing / unpacking: 7z, XZ, BZIP2, GZIP, TAR, ZIP and WIM
 -   Unpacking only: APFS, AR, ARJ, CAB, CHM, CPIO, CramFS, DMG, EXT, FAT, GPT, HFS, IHEX, ISO, LZH, LZMA, MBR, MSI, NSIS, NTFS, QCOW2, RAR, RPM, SquashFS, UDF, UEFI, VDI, VHD, VHDX, VMDK, XAR and Z
@@ -48,7 +48,7 @@ $success = $cli7zip->addFilesToArchive('/my/archive.7z', '/my/first/file.txt', '
 
 ## Warning
 
-**DO NOT USE IN PRODUCTION!** This is highly experimental and not battle-tested. I wrote this for a use-case I had. If there is any interest I will try to continue to improve this library.
+**DO NOT USE IN PRODUCTION!** This is highly experimental and not battle-tested. I wrote this for a use-case I had in about an hour. If there is any interest I will try to continue to improve this library.
 
 ## License Information
 
