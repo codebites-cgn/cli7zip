@@ -40,4 +40,15 @@ final class Path
     {
         return is_writable($path);
     }
+
+    /**
+     * Checks if a path or file is executable.
+     *
+     * @param string $path The path or file to check.
+     * @return bool True if the path or file is executable, false otherwise.
+     */
+    public static function isExecutable(string $path): bool
+    {
+        return is_executable($path);
+    }
 }
