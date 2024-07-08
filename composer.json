@@ -1,8 +1,19 @@
 {
-    "name": "codebites/cli7zip",
+    "name": "codebites/cli-7zip",
     "description": "A wrapper for 7-zip CLI to compress, decompress and manipulate archives.",
     "type": "library",
     "license": "MIT",
+    "homepage": "https://github.com/codebites-cgn/cli7zip",
+    "keywords": [
+        "cli",
+        "7z",
+        "7zip",
+        "zip",
+        "compression",
+        "decompression",
+        "archive",
+        "wrapper"
+    ],
     "autoload": {
         "psr-4": {
             "Codebites\\Cli7zip\\": "src/"
