@@ -3,14 +3,24 @@
 namespace Codebites\Cli7zip;
 
 use Codebites\Cli7zip\Exception\FileNotFoundException;
+use Codebites\Cli7zip\Exception\InsufficientPermissionsException;
 use Codebites\Cli7zip\Exception\MissingBinaryException;
 use RuntimeException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
+/**
+ * Class Cli7zip which acts as a wrapper for the 7zz binary.
+ * @author Marco Kretz <marco@codebites.de>
+ */
 class Cli7zip
 {
+    /**
+     * Path to the 7zz binary.
+     *
+     * @var null|string
+     */
     private ?string $sevenZipBinary;
 
     public function __construct(string $executableName = '7zz', array $additionalPaths = [])
@@ -20,7 +30,7 @@ class Cli7zip
         if ($sevenZipBinary === null) {
             $this->sevenZipBinary = self::getBundledBinaryPath();
             if ($this->sevenZipBinary === null) {
-                throw new MissingBinaryException();
+                throw new MissingBinaryException($executableName);
             }
         }
 
@@ -69,6 +79,7 @@ class Cli7zip
      *
      * @throws FileNotFoundException
      * @throws ProcessFailedException
+     * @throws InsufficientPermissionsException
      */
     public function extractArchive(string $archiveToExtract, string $targetFolder, bool $createParents = false): bool
     {
@@ -85,7 +96,7 @@ class Cli7zip
         }
 
         if (!Path::isWritable($targetFolder)) {
-            throw new RuntimeException('Target directory not writable: ' . $targetFolder);
+            throw new InsufficientPermissionsException($targetFolder, 'writable');
         }
 
         $process = new Process([$this->sevenZipBinary, 'x', $archiveToExtract, '-y', "-o$targetFolder"]);
@@ -191,6 +202,6 @@ class Cli7zip
 
         $output = $process->getOutput();
 
-        return strpos($output, '7-Zip') !== false;
+        return str_contains($output, '7-Zip') !== false;
     }
 }

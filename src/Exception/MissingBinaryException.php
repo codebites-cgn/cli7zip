@@ -6,10 +6,10 @@ use Exception;
 
 class MissingBinaryException extends Exception
 {
-    public function __construct()
+    public function __construct(string $binaryName)
     {
         parent::__construct(
-            sprintf('Could not find 7z binary on your system.')
+            sprintf('Could not find "%s" binary on your system.', $binaryName)
         );
     }
 }
