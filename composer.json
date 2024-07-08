@@ -1,0 +1,32 @@
+{
+    "name": "codebites/cli7zip",
+    "description": "A wrapper for 7-zip CLI to compress, decompress and manipulate archives.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Codebites\\Cli7zip\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Codebites\\Cli7zip\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Marco Kretz",
+            "email": "marco@codebites.de"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "symfony/process": "^7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.2"
+    },
+    "scripts": {
+        "test": "phpunit tests"
+    }
+}
