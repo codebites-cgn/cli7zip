@@ -44,6 +44,9 @@ $archivePath = $cli7zip->compressDir('/my/folder/to/compress', '/my/archive.zip'
 
 // Add files to existing archive
 $success = $cli7zip->addFilesToArchive('/my/archive.7z', '/my/first/file.txt', '/my/seconde/file2.txt');
+
+// Add string as file to existing archive
+$success = $cli7zip->addStringToArchive('/my/archive.7z', 'Hello, World!', 'filename.txt');
 ```
 
 ## Warning

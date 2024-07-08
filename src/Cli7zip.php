@@ -169,6 +169,40 @@ class Cli7zip
     }
 
     /**
+     * Add a string to an existing archive.
+     * $ 7zz a $existingArchive $stringToAdd
+     *
+     * @param string $existingArchive The existing archive.
+     * @param string $stringToAdd The string to add.
+     * @param string $filename The filename of the string.
+     * @return bool True if the string was added successfully, false otherwise.
+     */
+    public function addStringToArchive(string $existingArchive, string $stringToAdd, string $filename): bool
+    {
+        if (!Path::exists($existingArchive)) {
+            throw new FileNotFoundException($existingArchive);
+        }
+
+        // Write string to temporary file
+        $tmpFolder =  Temp::createFolder();
+        $stringFile = Path::join($tmpFolder, $filename);
+        file_put_contents($stringFile, $stringToAdd);
+
+        $process = new Process([$this->sevenZipBinary, 'a', $existingArchive, $stringFile]);
+        $process->run();
+
+        // Remove temporary stuff
+        unlink($stringFile);
+        rmdir($tmpFolder);
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return true;
+    }
+
+    /**
      * Get the path to the bundled 7zip binary for the current platform.
      *
      * @return string|null The path to the bundled 7zip binary, or null if it doesn't exist.
