@@ -3,42 +3,38 @@
 namespace Codebites\Cli7zip\Tests;
 
 use Codebites\Cli7zip\Cli7zip;
+use Codebites\Cli7zip\Path;
+use Codebites\Cli7zip\Temp;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 
 class Cli7zTest extends TestCase
 {
-    private static string $tmpDir;
-    private static string $testArchive;
+    private string $tmpDir;
+    private string $testArchive;
 
-    public static function setUpBeforeClass(): void
+    public function setUp(): void
     {
-        self::$tmpDir = sys_get_temp_dir() . '/' . uniqid("seven-zipper-test-");
+        $this->tmpDir = Temp::createFolder();
+        $this->testArchive = Path::join($this->tmpDir, 'archive.7z');
         $sevenZipBinary = Cli7zip::getBundledBinaryPath();
-        if ($sevenZipBinary !== null) {
-            // Create temporary folder for test archive
-            mkdir(self::$tmpDir, 0775, true);
 
-            // Define archive name and test files
-            $testArchive = self::$tmpDir . '/archive.7z';
+        if ($sevenZipBinary !== null) {
             $testFiles = [
-                self::$tmpDir . '/testfile.txt' => 'Hello, World!',
-                self::$tmpDir . '/testfile2.txt' => 'This is from PHPUnit!',
+                Path::join($this->tmpDir, 'testfile.txt') => 'Hello, World!',
+                Path::join($this->tmpDir, 'testfile2.txt') => 'This is from PHPUnit!',
             ];
 
-            // Create test files
             foreach ($testFiles as $path => $content) {
                 file_put_contents($path, $content,);
             }
 
             // Create test archive
-            $process = new Process([$sevenZipBinary, 'a', $testArchive, ...array_keys($testFiles)]);
+            $process = new Process([$sevenZipBinary, 'a', $this->testArchive, ...array_keys($testFiles)]);
             $process->run();
             if (!$process->isSuccessful()) {
                 print("Error creating Test Archive!" . PHP_EOL);
                 print($process->getOutput() . PHP_EOL);
-            } else {
-                self::$testArchive = $testArchive;
             }
 
             // Remove test files
@@ -48,13 +44,9 @@ class Cli7zTest extends TestCase
         }
     }
 
-    public static function tearDownAfterClass(): void
+    public function tearDown(): void
     {
-        // Remove test archive
-        if (file_exists(self::$tmpDir)) {
-            unlink(self::$testArchive);
-            rmdir(self::$tmpDir);
-        }
+        Path::removeDir($this->tmpDir);
     }
 
     public function testConstructorThrowsNoExceptionForMissingBinaryParameter(): void
@@ -66,39 +58,57 @@ class Cli7zTest extends TestCase
     public function testArchiveIntegrity(): void
     {
         $cli7z = new Cli7zip();
-        $this->assertTrue($cli7z->testArchiveIntegrity(self::$testArchive));
+        $this->assertTrue($cli7z->testArchiveIntegrity($this->testArchive));
     }
 
     public function testExtractToValidDirectoryWithoutCreation(): void
     {
         $cli7z = new Cli7zip();
-        $extractionDir = self::$tmpDir . '/extracted_files';
+        $extractionDir = Path::join($this->tmpDir, 'extracted_files');
         mkdir($extractionDir, 0775, true);
-        $cli7z->extractArchive(self::$testArchive, $extractionDir, false);
-        $this->assertTrue(file_exists($extractionDir . '/testfile.txt'));
-        $this->assertTrue(file_exists($extractionDir . '/testfile2.txt'));
-        unlink($extractionDir . '/testfile.txt');
-        unlink($extractionDir . '/testfile2.txt');
-        rmdir($extractionDir);
+
+        $this->assertTrue($cli7z->extractArchive($this->testArchive, $extractionDir, false));
+        $this->assertTrue(Path::exists(Path::join($extractionDir, 'testfile.txt')));
+        $this->assertTrue(Path::exists(Path::join($extractionDir, 'testfile2.txt')));
+
+        Path::removeDir($extractionDir);
     }
 
     public function testExtractToValidDirectoryWithCreation(): void
     {
         $cli7z = new Cli7zip();
-        $extractionDir = self::$tmpDir . '/extracted_files2';
-        $cli7z->extractArchive(self::$testArchive, $extractionDir, true);
-        $this->assertTrue(file_exists($extractionDir . '/testfile.txt'));
-        $this->assertTrue(file_exists($extractionDir . '/testfile2.txt'));
-        unlink($extractionDir . '/testfile.txt');
-        unlink($extractionDir . '/testfile2.txt');
-        rmdir($extractionDir);
+        $extractionDir = Path::join($this->tmpDir, 'extracted_files');
+        $file1 = Path::join($extractionDir, 'testfile.txt');
+        $file2 = Path::join($extractionDir, 'testfile2.txt');
+
+        $this->assertTrue($cli7z->extractArchive($this->testArchive, $extractionDir, true));
+        $this->assertTrue(Path::exists($file1));
+        $this->assertTrue(path::exists($file2));
+
+        Path::removeDir($extractionDir);
     }
 
     public function testCompressFolder(): void
     {
         $cli7z = new Cli7zip();
-        $cli7z->compressDir(self::$tmpDir, self::$tmpDir . '/archive2.7z');
-        $this->assertTrue(file_exists(self::$tmpDir . '/archive2.7z'));
-        unlink(self::$tmpDir . '/archive2.7z');
+        $newArchive = Path::join($this->tmpDir, 'archive2.7z');
+
+        $this->assertNotNull($cli7z->compressDir($this->tmpDir, $newArchive));
+        $this->assertTrue(Path::exists($newArchive));
+        unlink($newArchive);
+    }
+
+    public function testAddStringToArchive(): void
+    {
+        $cli7z = new Cli7zip();
+
+        $this->assertTrue($cli7z->addStringToArchive($this->testArchive, 'Hello, World!', 'addedfile.txt'));
+
+        $extractionDir = Path::join($this->tmpDir, 'extracted_files');
+        $this->assertTrue($cli7z->extractArchive($this->testArchive, $extractionDir, true));
+        $this->assertTrue(Path::exists(Path::join($extractionDir, 'addedfile.txt')));
+        $this->assertEquals('Hello, World!', file_get_contents(Path::join($extractionDir, 'addedfile.txt')));
+
+        Path::removeDir($extractionDir);
     }
 }
