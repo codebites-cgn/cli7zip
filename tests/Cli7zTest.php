@@ -16,19 +16,22 @@ class Cli7zTest extends TestCase
         self::$tmpDir = sys_get_temp_dir() . '/' . uniqid("seven-zipper-test-");
         $sevenZipBinary = Cli7zip::getBundledBinaryPath();
         if ($sevenZipBinary !== null) {
+            // Create temporary folder for test archive
             mkdir(self::$tmpDir, 0775, true);
+
+            // Define archive name and test files
             $testArchive = self::$tmpDir . '/archive.7z';
             $testFiles = [
                 self::$tmpDir . '/testfile.txt' => 'Hello, World!',
                 self::$tmpDir . '/testfile2.txt' => 'This is from PHPUnit!',
             ];
 
+            // Create test files
             foreach ($testFiles as $path => $content) {
-                print("Creating test file: $path" . PHP_EOL);
                 file_put_contents($path, $content,);
             }
 
-            print("Creating test archive: $testArchive" . PHP_EOL);
+            // Create test archive
             $process = new Process([$sevenZipBinary, 'a', $testArchive, ...array_keys($testFiles)]);
             $process->run();
             if (!$process->isSuccessful()) {
@@ -38,6 +41,7 @@ class Cli7zTest extends TestCase
                 self::$testArchive = $testArchive;
             }
 
+            // Remove test files
             foreach ($testFiles as $path => $content) {
                 unlink($path);
             }
@@ -46,6 +50,7 @@ class Cli7zTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
+        // Remove test archive
         if (file_exists(self::$tmpDir)) {
             unlink(self::$testArchive);
             rmdir(self::$tmpDir);
@@ -55,7 +60,6 @@ class Cli7zTest extends TestCase
     public function testConstructorThrowsNoExceptionForMissingBinaryParameter(): void
     {
         $this->expectNotToPerformAssertions();
-
         new Cli7zip();
     }
 
@@ -96,10 +100,5 @@ class Cli7zTest extends TestCase
         $cli7z->compressDir(self::$tmpDir, self::$tmpDir . '/archive2.7z');
         $this->assertTrue(file_exists(self::$tmpDir . '/archive2.7z'));
         unlink(self::$tmpDir . '/archive2.7z');
-    }
-
-    public function testAddingFilesToExistingArchive(): void
-    {
-        $cli7z = new Cli7zip();
     }
 }
