@@ -23,6 +23,13 @@ class Cli7zip
                 throw new MissingBinaryException();
             }
         }
+
+        if (!$this->isBinarySevenZip($this->sevenZipBinary)) {
+            throw new RuntimeException(sprintf(
+                'The "%s" binary could not be found or is not executable.',
+                $this->sevenZipBinary
+            ));
+        }
     }
 
     /**
@@ -161,6 +168,29 @@ class Cli7zip
         $osArchitecture = strtolower(php_uname('m'));
         $binPath = Path::join(__DIR__, '..', 'bin', "7zzs_$osPlatform-$osArchitecture");
 
-        return Path::exists($binPath) ? $binPath : null;
+        return (Path::exists($binPath) && Path::isExecutable($binPath)) ? $binPath : null;
+    }
+
+    /**
+     * Checks if the given path is a valid 7zip binary.
+     *
+     * @param string $binaryPath The path to check.
+     * @return bool True if the path is a valid 7zip binary, false otherwise.
+     */
+    private function isBinarySevenZip(string $binaryPath): bool
+    {
+        if (!Path::exists($binaryPath) || !Path::isExecutable($binaryPath)) {
+            return false;
+        }
+
+        $process = new Process([$binaryPath, '--help']);
+        $process->run();
+        if (!$process->isSuccessful()) {
+            return false;
+        }
+
+        $output = $process->getOutput();
+
+        return strpos($output, '7-Zip') !== false;
     }
 }
