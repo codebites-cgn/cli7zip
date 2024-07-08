@@ -2,6 +2,9 @@
 
 namespace Codebites\Cli7zip;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+
 /**
  * Helper class for working with paths.
  * @author Marco Kretz <marco@codebites.de>
@@ -50,5 +53,30 @@ final class Path
     public static function isExecutable(string $path): bool
     {
         return is_executable($path);
+    }
+
+    /**
+     * Removes a directory recursively.
+     * @url https://stackoverflow.com/a/3349792
+     *
+     * @param string $dir The directory to remove.
+     */
+    public static function removeDir(string $dir): bool
+    {
+        if (!self::exists($dir)) {
+            return false;
+        }
+
+        $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+        $files = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ($files as $file) {
+            if ($file->isDir()) {
+                rmdir($file->getPathname());
+            } else {
+                unlink($file->getPathname());
+            }
+        }
+
+        return rmdir($dir);
     }
 }
