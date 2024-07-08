@@ -48,7 +48,7 @@ $success = $cli7zip->addFilesToArchive('/my/archive.7z', '/my/first/file.txt', '
 
 ## Warning
 
-**DO NOT US IN PRODUCTION!** This is highly experimental and not battle-tested. I wrote this for a use-case I had. If there is any interest I will try to continue to improve this library.
+**DO NOT USE IN PRODUCTION!** This is highly experimental and not battle-tested. I wrote this for a use-case I had. If there is any interest I will try to continue to improve this library.
 
 ## License Information
 
