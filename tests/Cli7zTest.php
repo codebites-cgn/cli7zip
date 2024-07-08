@@ -83,7 +83,7 @@ class Cli7zTest extends TestCase
 
         $this->assertTrue($cli7z->extractArchive($this->testArchive, $extractionDir, true));
         $this->assertTrue(Path::exists($file1));
-        $this->assertTrue(path::exists($file2));
+        $this->assertTrue(Path::exists($file2));
 
         Path::removeDir($extractionDir);
     }
@@ -95,6 +95,7 @@ class Cli7zTest extends TestCase
 
         $this->assertNotNull($cli7z->compressDir($this->tmpDir, $newArchive));
         $this->assertTrue(Path::exists($newArchive));
+
         unlink($newArchive);
     }
 
