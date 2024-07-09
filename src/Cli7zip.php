@@ -212,6 +212,35 @@ class Cli7zip
     }
 
     /**
+     * Add an existing directory to an existing archive.
+     * $ 7zz a $existingArchive $directoryName/
+     *
+     * @param string $existingArchive
+     * @param string $directoryName
+     * @return bool
+     *
+     * @throws FileNotFoundException
+     */
+    public function addDirectoryToArchive(string $existingArchive, string $directoryName): bool
+    {
+        if (!Path::exists($existingArchive)) {
+            throw new FileNotFoundException($existingArchive);
+        }
+
+        if (!Path::exists($directoryName)) {
+            throw new FileNotFoundException($existingArchive);
+        }
+
+        $process = new Process([$this->sevenZipBinary, 'a', $existingArchive, rtrim($directoryName, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR]);
+        $process->run();
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return true;
+    }
+
+    /**
      * Add an empty directory to an existing archive.
      * $ 7zz a $existingArchive $directoryName/
      *
