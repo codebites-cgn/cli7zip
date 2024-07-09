@@ -2,6 +2,7 @@
 
 namespace Codebites\Cli7zip;
 
+use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
@@ -67,7 +68,7 @@ final class Path
             return false;
         }
 
-        $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+        $it = new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS);
         $files = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($files as $file) {
             if ($file->isDir()) {

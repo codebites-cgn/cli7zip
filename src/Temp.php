@@ -24,7 +24,7 @@ final class Temp
 
         // Create temporary folder
         $tmpFolder =  "$tmpFile.dir";
-        if (!mkdir($tmpFolder, 0775)) {
+        if (!mkdir($tmpFolder, 0775) && !is_dir($tmpFolder)) {
             return null;
         }
 

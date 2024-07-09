@@ -23,6 +23,11 @@ class Cli7zip
      */
     private ?string $sevenZipBinary;
 
+    /**
+     * Constructor.
+     *
+     * @throws MissingBinaryException
+     */
     public function __construct(string $executableName = '7zz', array $additionalPaths = [])
     {
         $exeFinder = new ExecutableFinder();
@@ -89,7 +94,9 @@ class Cli7zip
 
         if (!Path::exists($targetFolder)) {
             if ($createParents) {
-                mkdir($targetFolder, 0775, true);
+                if (!mkdir($targetFolder, 0775, true) && !is_dir($targetFolder)) {
+                    throw new RuntimeException(sprintf('Directory "%s" was not created', $targetFolder));
+                }
             } else {
                 throw new FileNotFoundException($targetFolder);
             }
@@ -132,7 +139,7 @@ class Cli7zip
         }
 
         $directoryToCompress = rtrim($directoryToCompress, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '*';
-        $process = new Process([$this->sevenZipBinary, "-t$format", 'a', $outputArchive, "$directoryToCompress"]);
+        $process = new Process([$this->sevenZipBinary, "-t$format", 'a', $outputArchive, $directoryToCompress]);
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -176,6 +183,8 @@ class Cli7zip
      * @param string $stringToAdd The string to add.
      * @param string $filename The filename of the string.
      * @return bool True if the string was added successfully, false otherwise.
+     *
+     * @throws FileNotFoundException
      */
     public function addStringToArchive(string $existingArchive, string $stringToAdd, string $filename): bool
     {

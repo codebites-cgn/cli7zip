@@ -26,7 +26,7 @@ class Cli7zTest extends TestCase
             ];
 
             foreach ($testFiles as $path => $content) {
-                file_put_contents($path, $content,);
+                file_put_contents($path, $content);
             }
 
             // Create test archive
