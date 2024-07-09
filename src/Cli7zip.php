@@ -212,6 +212,38 @@ class Cli7zip
     }
 
     /**
+     * Add an empty directory to an existing archive.
+     * $ 7zz a $existingArchive $directoryName/
+     *
+     * @param string $existingArchive
+     * @param string $directoryName
+     * @return bool
+     *
+     * @throws FileNotFoundException
+     */
+    public function addEmptyDirectoryToArchive(string $existingArchive, string $directoryName): bool
+    {
+        if (!Path::exists($existingArchive)) {
+            throw new FileNotFoundException($existingArchive);
+        }
+
+        $tmpFolder =  Temp::createFolder();
+        $directoryName = Path::join($tmpFolder, $directoryName);
+        if (!mkdir($directoryName, 0775) && !is_dir($directoryName)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $directoryName));
+        }
+
+        $process = new Process([$this->sevenZipBinary, 'a', $existingArchive, rtrim($directoryName, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR]);
+        $process->run();
+        Path::removeDir($tmpFolder);
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return true;
+    }
+
+    /**
      * Get the path to the bundled 7zip binary for the current platform.
      *
      * @return string|null The path to the bundled 7zip binary, or null if it doesn't exist.

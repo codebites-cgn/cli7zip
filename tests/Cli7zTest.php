@@ -112,4 +112,18 @@ class Cli7zTest extends TestCase
 
         Path::removeDir($extractionDir);
     }
+
+    public function testAddEmptyDirectoryToArchive(): void
+    {
+        $cli7z = new Cli7zip();
+
+        $this->assertTrue($cli7z->addEmptyDirectoryToArchive($this->testArchive, 'added_dir'));
+
+        $extractionDir = Path::join($this->tmpDir, 'extracted_files');
+        $this->assertTrue($cli7z->extractArchive($this->testArchive, $extractionDir, true));
+        $this->assertTrue(Path::exists(Path::join($extractionDir, 'added_dir')));
+        $this->assertDirectoryExists(Path::join($extractionDir, 'added_dir'));
+
+        Path::removeDir($extractionDir);
+    }
 }
